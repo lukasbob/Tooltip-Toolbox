@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		Boo
+	</title>
+<script type="text/javascript" src="http://siteimprove.com/js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/tooltip.js"></script>
+<style type="text/css" media="screen">
+	html {
+		font: 12px "lucida grande", tahome, sans-serif;
+		line-height: 1.5em;
+		background: #666
+	}
+	html * {
+		padding: 0;
+		margin: 0;
+	}
+	h1 {
+		padding: 2em 0 .5em 0;
+		font: 3em helvetica;
+		color: #333;
+		font-weight: bold;
+		text-shadow: 0 1px 0 #aaa;
+	}
+	h2, h3 {
+		font-family: helvetica, georgia, times, serif;
+		padding: 1em 0 .5em;
+	}
+	body {
+		margin: 0 auto;
+		width: 960px;
+		padding-bottom: 300px;
+	}
+	.img_tip {
+		border: 1px solid #fff;
+	}
+	strong.example {
+		padding: .1em .3em;
+		background: #ffe;
+		border: 1px dotted #777;
+	}
+	strong.tt_active {
+		background: #ffa;
+	}
+	div.example, div.intro  {
+		border:1px solid;
+		margin: .5em 0;
+		padding: 1em;
+		background: #eee
+	}
+	pre, code {
+		font-family: consolas, inconsolata, 'bitstream vera sans mono', monospace
+	}
+	pre {
+		background: #fff;
+		padding: .5em;
+		border: 1px inset #ccc;
+		-moz-box-shadow: inset 0 1px 3px #000;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+	}
+	pre:before {
+		content: 'Code: ';
+		display: block;
+		font-family: helvetica, georgia, times, serif;
+		font-weight: bold;
+	}
+	p.test:before {
+		content: 'Example: ';
+		display: block;
+		font-family: helvetica, georgia, times, serif;
+		font-weight: bold;
+	}
+	.customTip {
+		background: #efe;
+		padding: 1em;
+		border: 5px solid rgba(0, 0, 0, .4);
+		-moz-border-radius: 10px;
+		-webkit-border-radius: 10px;
+	}
+	strong.customActive {
+		background: #efe;
+	}
+	dt {
+		font: 13px helvetica;
+		font-weight: bold;
+		padding-top: .5em;
+	}
+	dd {
+		padding-left: 2em;
+	}
+	a#dropdown {
+		position: relative;
+		z-index: 100;
+		padding: .2em .5em;
+		text-decoration: none;
+		background: #ddd;
+		color: #000;
+		border-bottom: 1px solid #333;
+	}
+	a#dropdown.tt_active, .tt_dropdown .tt_active {
+		background: #665;
+		color: #fff;
+	}
+	a.nested:after {
+		content: '\25B6';
+		position: absolute;
+		right: 1em;
+		font-size: smaller;
+		color: #333;
+	}
+	ul.tt_dropdown {
+		padding: 0 0 3px;
+		list-style: none;
+		background: #fff;
+		color: #000;
+		-moz-border-radius: 3px;
+		-webkit-border-radius: 3px;
+		min-width: 150px;
+		-webkit-box-shadow: 0 10px 30px rgba(0,0,0,.7);
+		-moz-box-shadow: 0 10px 30px rgba(0,0,0,.7);
+	}
+	ul.tt_dropdown a {
+		display: block;
+		z-index: 101;
+		color: #000;
+		text-decoration: none;
+		padding: 0 2em 0 1em;
+	}
+	ul.tt_dropdown a:hover, a.nested:hover:after {
+		color: #fff;
+		background: #665;
+	}
+</style>
+
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {
+		$('.above').tt({
+			vAlign: 'above',
+			align: 'flushLeft'
+		});
+		$('.belowCenter').tt({
+			vAlign: 'below',
+			align: 'center',
+			css: {
+				width: '300px'
+			},
+			zoom: true
+		});
+		$('.flushRight').tt({
+			vAlign: 'above',
+			align: 'flushRight'
+		});
+		$('.center').tt({
+			vAlign: 'center',
+			align: 'right'
+		});
+		$('.custom_class').tt({
+			ttClass: 'customTip',
+			activeClass: 'customActive'
+		});
+		$('.title').tt({
+			css: {
+				textAlign: 'left'
+			}
+		});
+		$('.event_click').tt({
+			showEvent: 'click',
+			delay: 0
+		});
+		$('.event_focus').tt({
+			showEvent: 'focus',
+			hideEvent: 'blur',
+			delay: 0,
+			timeOut: 500
+		});
+		$('.image_center').tt({
+			vAlign: 'absCenter',
+			align: 'absCenter',
+			zoom: true,
+			fadeIn: 100,
+			showEvent: 'click',
+			hideEvent: 'click',
+			timeOut: 0
+		});
+		$('.dropdown').tt({
+			align: 'flushLeft',
+			vAlign: 'below',
+			ttClass: 'tt_dropdown',
+			distanceY: 0,
+			timeOut: 400,
+			showEvent: 'click',
+			delay: 0
+		});
+		$('.nested').tt({
+			align: 'right',
+			vAlign: 'flushTop',
+			ttClass: 'tt_dropdown',
+			distanceX: 0,
+			nudgeX: -2,
+			timeOut: 400,
+			delay: 400
+		})
+	})
+</script>
+</head>
+<body>
+
+<h1>Tooltip examples</h1>
+<div class="intro">
+
+	<h2>Possible parameters:</h2>
+
+	<h3>Event handler:</h3>
+	<dl>
+		<dt>str showEvent</dt>  
+		<dd>Defines the event that activates the tooltip.</dd>
+		<dd>Possible values: mouseover, focus, click, dblclick, change etc.</dd>
+		<dd>Default: "mouseover"</dd>
+		<dt>str hideEvent</dt>
+		<dd>Defines the event that hides the tooltip.</dd>
+		<dd>Possible values: mouseout, blur, click, dblclick, change etc.</dd>
+		<dd>Default: "mouseout"</dd>
+	</dl>
+
+
+	<h3>CSS ids and classes:</h3>
+	<dl>
+		<dt>str ttClass</dt>
+		<dd>Class for the tooltip for overriding and additional styling.</dd>
+		<dd>Default: "tt_tip"</dd>
+		<dt>str activeClass</dt>
+		<dd>Class for the trigger element while tooltip is displayed.</dd>
+		<dd>Default: "tt_active"</dd>
+		<dt>str ttIdPrefix</dt> 
+		<dd>Prefix for the element ID that identifies the tooltip ID.</dd>
+		<dd>Example: element with id="test" looks for tooltip container with id="tt_test"</dd>
+		<dd>Default: "tt_"</dd>
+	</dl>
+	<h3>Positioning:</h3>
+	<dl>
+		<dt>str align:</dt>
+		<dd>Preferred horizontal alignment of the tooltip. </dd>
+		<dd>Values: "absCenter", "center", "right", "left", "flushRight", and "flushLeft".</dd>
+		<dd>Default: "flushLeft".</dd>
+		<dt>str vAlign:</dt>
+		<dd>Preferred vertical alignment of the tooltip.</dd>
+		<dd>Values: "absCenter", "center", "above" and "below".</dd>
+		<dd>Default: "above"</dd>
+		<dt>int windowMargin</dt>   
+		<dd>The tooltip's minimum margin from the window's edge.</dd>
+		<dd>Default: 5</dd>
+		<dt>int distanceX</dt>
+		<dd>The tooltip's horizontal distance from the trigger element.</dd>
+		<dd>Not used if align is flushLeft, flushRight or centered.</dd>
+		<dd>Default: 0  </dd>
+		<dt>int distanceY</dt>
+		<dd>The tooltip's vertical distance from the trigger element.</dd>
+		<dd>Not used for if vAlign is centered.</dd>
+		<dd>Default: 2</dd>
+		<dt>int nudgeX</dt>
+		<dd>Nudge along x axis. Use negative int to nudge left; positive int to nudge right.</dd>
+		<dd>Default: 0</dd>
+		<dt>int nudgeY</dt>
+		<dd>Nudge along y axis. Use negative int to nudge up; positive int to nudge down.</dd>
+		<dd>Default: 0</dd>
+	</dl>
+	<h3>Timing:</h3>
+	<dl>
+		<dt>int timeOut:</dt>
+		<dd>Time that tooltip is displayed after mouseout.</dd>
+		<dd>Default: 1000</dd>
+		<dt>int delay</dt>
+		<dd>Delay before displaying tooltip.</dd>
+		<dd>Default: 500</dd>
+		<dt>int fadeOut</dt>
+		<dd>Time it take for the tooltip to fade out.</dd>
+		<dd>Default: 250</dd>
+		<dt>int fadeIn</dt>
+		<dd>Time it take for the tooltip to fade in.</dd>
+		<dd>Default: 100</dd>
+	</dl>
+	<h3>Styling:</h3>
+	<dl>
+		<dt>obj css</dt>
+		<dd>Object with CSS rules, applied in addition to default styles.</dd>
+		<dd>As with jQuery CSS, use JavaScript CSS syntax, or quote properties.</dd>
+		<dd>Example: "css: {textAlign: 'left'}" or "css: {'text-align': 'left'}"</dd>
+		<dd>Default: Empty.</dd>
+		<dt>bool zoom</dt>
+		<dd>Use a zoom effect to animate the tooltip from the dimensions and point of origin of the target element.</dd>
+		<dd>Special case: If target and tooltip are both images, the image will zoom as well</dd>
+		<dd>Default: false</dd>
+	</dl>
+</div>
+<div class="example">
+	
+	<h2>Example 1: Positioning the tooltip flush left above the element</h2>
+	<code>
+<pre>
+$('.above').tt({
+	vAlign: 'above',
+	align: 'flushLeft'
+});</pre>
+	</code>
+	<p class="test">Here is a <strong class="above example" id="example1">tooltip</strong></p>
+	<div id="tt_example1">
+		<p>Tooltip for example 1.</p>
+	</div>
+</div>
+	
+<div class="example">
+	
+	<h2>Example 2: Positioning the tooltip centred below the element</h2>
+	<code>
+<pre>
+$('.belowCenter').tt({
+	vAlign: 'below',
+	align: 'center',
+	css: {
+		width: '300px'
+	}
+});</pre>
+	</code>
+	<p class="test">Lorem ipsum dolor sit amet, mco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Here is a <strong class="belowCenter example" id="example2">tooltip</strong></p>
+	<div id="tt_example2">
+		<h3>Tooltip for example 2.</h3>
+		<p><strong>This time with a lot of text:</strong></p>
+		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+	</div>
+</div>
+
+<div class="example">
+	
+	<h2>Example 3: Positioning the tooltip flush right above the element</h2>
+	<code>
+<pre>
+$('.flushRight').tt({
+	vAlign: 'above',
+	align: 'flushRight'
+});</pre>
+	</code>
+	<p class="test">Lorem ipsum dolor sit amet, mco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Here is a <strong class="flushRight example" id="example3">tooltip</strong></p>
+	<div id="tt_example3">
+		<p><strong>Tooltip for example 3</strong></p>
+	</div>
+</div>
+<div class="example">
+	
+	<h2>Example 4: Positioning the tooltip vertically centered to the right of the element</h2>
+	<code>
+<pre>
+$('.center').tt({
+	vAlign: 'center',
+	align: 'right'
+});</pre>
+	</code>
+	<p class="test">Lorem ipsum dolor sit amet, mco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Here is a <strong class="center example" id="example4">tooltip</strong></p>
+	<div id="tt_example4">
+		<p><strong>Tooltip for example 4</strong></p>
+	</div>
+</div>
+<div class="example">
+	
+	<h2>Example 5: Custom tooltip class</h2>
+	<code>
+<pre>
+JavaScript: 
+$('.custom_class').tt({
+	ttClass: 'customTip',
+	activeClass: 'customActive'
+});
+
+CSS:
+.customTip {
+	background: #efe;
+	padding: 1em;
+	border: 5px solid rgba(0, 0, 0, .4);
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+}
+.customActive {
+	background: #efe;
+}</pre>
+	</code>
+	<p class="test">Lorem ipsum dolor sit amet, mco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Here is a <strong class="custom_class example" id="example5">tooltip</strong></p>
+	<div id="tt_example5">
+		<p><strong>Tooltip for example 5</strong></p>
+	</div>
+</div>
+<div class="example">
+	
+	<h2>Example 6: Tooltip based on the trigger element's title</h2>
+	<code>
+<pre>
+$('.custom_class').tt({css: {
+		textAlign: 'left'
+	}
+});</pre>
+	</code>
+	<p class="test">Lorem ipsum dolor sit amet, mco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Here is a <strong class="title example" title="Get this from the title tag - We support **strong text** with *_*two class names*_*'. - Enjoy!">tooltip</strong></p>
+</div>
+
+<div class="example">
+	
+	<h2>Example 7: Events: Show on click</h2>
+	<code>
+<pre>
+$('.event_click').tt({
+	showEvent: 'click',
+	delay: 0,
+	zoom: true
+});</pre>
+	</code>
+	<p class="test">Lorem ipsum dolor sit amet, mco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Here is a <strong class="event_click example" id="example7">tooltip</strong></p>
+	<div id="tt_example7">
+		<p><strong>Tooltip for example 7</strong></p>
+	</div>
+</div>
+<div class="example">
+	
+	<h2>Example 8: Events: Show/hide on focus/blur</h2>
+	<code>
+<pre>
+$('.event_focus').tt({
+	showEvent: 'focus',
+	hideEvent: 'blur',
+	delay: 0,
+	timeOut: 500
+});</pre>
+	</code>
+	<p class="test"><input type="text" class="event_focus example" id="example8" value="Focus for a tooltip"></p>
+	<div id="tt_example8">
+		<p><strong>Tooltip for example 8</strong></p>
+	</div>
+</div>
+<div class="example">
+	<h2>Example 8: A pretty example</h2>
+		<code>
+<pre>s
+$('.image_center').tt({
+	vAlign: 'absCenter',
+	align: 'absCenter',
+	zoom: true,
+	fadeIn: 100,
+	showEvent: 'click',
+	hideEvent: 'click',
+	timeOut: 0
+});</pre>
+	</code>
+	<p class="test"><img class="image_center example" id="example_8" src="http://farm1.static.flickr.com/25/95283121_f300f7d188_t.jpg"></p>
+	<img id="tt_example_8" width="500" height="333" src="http://farm1.static.flickr.com/25/95283121_f300f7d188.jpg">
+</div>
+
+<div class="example">
+	<code>
+<pre>
+$('#dropdown').tt({
+	align: 'flushRight',
+	vAlign: 'below',
+	ttClass: 'dropdown'
+});</pre>
+	</code>
+	<h2>Example: A dropdown menu</h2>
+	<code>
+<pre>
+//For the main dropdown menu:
+$('.dropdown').tt({
+	align: 'flushLeft',
+	vAlign: 'below',
+	ttClass: 'tt_dropdown',
+	distanceY: 0,
+	timeOut: 400,
+	showEvent: 'click',
+	delay: 0
+});
+//For any nested menus it contains
+$('.nested').tt({
+	align: 'right',
+	vAlign: 'flushTop',
+	ttClass: 'tt_dropdown',
+	distanceX: 0,
+	nudgeX: -2,
+	timeOut: 400,
+	delay: 400
+})</pre>
+</code>
+	<p>
+		<a class="dropdown" id="dropdown" href="#tt_dropdown">Select an option</a>
+	</p>
+	<ul id="tt_dropdown">
+		<li><a href="http://example.com/">Item 1</a></li>
+		<li><a href="http://example.com/">Item 2</a></li>
+		<li><a class="nested" id="nested_dd" href="http://example.com/">Item 1</a>
+			<ul id="tt_nested_dd">
+				<li><a href="http://example.com/">Nested item 1</a></li>
+				<li><a href="http://example.com/">Nested item 1</a></li>
+				<li><a class="nested" id="nested_nested" href="http://example.com/">Nested item 1 with nesting</a>
+					<ul id="tt_nested_nested">
+						<li><a href="http://example.com/">Nested item 1</a></li>
+						<li><a href="http://example.com/">Nested item 1</a></li>
+						<li><a href="http://example.com/">Nested item 1 with nesting</a></li>
+					</ul>
+				</li>
+			</ul>
+		</li>
+		<li><a href="http://example.com/">Item 2</a></li>
+		<li><a href="http://example.com/">Item 1</a></li>
+		<li><a href="http://example.com/">Item 2</a></li>
+		<li><a href="http://example.com/">Item 1</a></li>
+		<li><a href="http://example.com/">Item 2</a></li>
+		<li><a href="http://example.com/">Item 1</a></li>
+		<li><a href="http://example.com/">Item 2</a></li>		
+	</ul>
+</div>
+
+
+</body>
+</html>
