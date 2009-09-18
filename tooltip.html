@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>
-		Boo
+		Introduction to the Tooltip Toolbox
 	</title>
 <script type="text/javascript" src="http://siteimprove.com/js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/tooltip.js"></script>
@@ -111,7 +111,7 @@
 		color: #333;
 	}
 	ul.tt_dropdown {
-		padding: 0 0 3px;
+		padding: 3px 0;
 		list-style: none;
 		background: #fff;
 		color: #000;
@@ -209,91 +209,9 @@
 
 <h1>Tooltip examples</h1>
 <div class="intro">
-
-	<h2>Possible parameters:</h2>
-
-	<h3>Event handler:</h3>
-	<dl>
-		<dt>str showEvent</dt>  
-		<dd>Defines the event that activates the tooltip.</dd>
-		<dd>Possible values: mouseover, focus, click, dblclick, change etc.</dd>
-		<dd>Default: "mouseover"</dd>
-		<dt>str hideEvent</dt>
-		<dd>Defines the event that hides the tooltip.</dd>
-		<dd>Possible values: mouseout, blur, click, dblclick, change etc.</dd>
-		<dd>Default: "mouseout"</dd>
-	</dl>
-
-
-	<h3>CSS ids and classes:</h3>
-	<dl>
-		<dt>str ttClass</dt>
-		<dd>Class for the tooltip for overriding and additional styling.</dd>
-		<dd>Default: "tt_tip"</dd>
-		<dt>str activeClass</dt>
-		<dd>Class for the trigger element while tooltip is displayed.</dd>
-		<dd>Default: "tt_active"</dd>
-		<dt>str ttIdPrefix</dt> 
-		<dd>Prefix for the element ID that identifies the tooltip ID.</dd>
-		<dd>Example: element with id="test" looks for tooltip container with id="tt_test"</dd>
-		<dd>Default: "tt_"</dd>
-	</dl>
-	<h3>Positioning:</h3>
-	<dl>
-		<dt>str align:</dt>
-		<dd>Preferred horizontal alignment of the tooltip. </dd>
-		<dd>Values: "absCenter", "center", "right", "left", "flushRight", and "flushLeft".</dd>
-		<dd>Default: "flushLeft".</dd>
-		<dt>str vAlign:</dt>
-		<dd>Preferred vertical alignment of the tooltip.</dd>
-		<dd>Values: "absCenter", "center", "above" and "below".</dd>
-		<dd>Default: "above"</dd>
-		<dt>int windowMargin</dt>   
-		<dd>The tooltip's minimum margin from the window's edge.</dd>
-		<dd>Default: 5</dd>
-		<dt>int distanceX</dt>
-		<dd>The tooltip's horizontal distance from the trigger element.</dd>
-		<dd>Not used if align is flushLeft, flushRight or centered.</dd>
-		<dd>Default: 0  </dd>
-		<dt>int distanceY</dt>
-		<dd>The tooltip's vertical distance from the trigger element.</dd>
-		<dd>Not used for if vAlign is centered.</dd>
-		<dd>Default: 2</dd>
-		<dt>int nudgeX</dt>
-		<dd>Nudge along x axis. Use negative int to nudge left; positive int to nudge right.</dd>
-		<dd>Default: 0</dd>
-		<dt>int nudgeY</dt>
-		<dd>Nudge along y axis. Use negative int to nudge up; positive int to nudge down.</dd>
-		<dd>Default: 0</dd>
-	</dl>
-	<h3>Timing:</h3>
-	<dl>
-		<dt>int timeOut:</dt>
-		<dd>Time that tooltip is displayed after mouseout.</dd>
-		<dd>Default: 1000</dd>
-		<dt>int delay</dt>
-		<dd>Delay before displaying tooltip.</dd>
-		<dd>Default: 500</dd>
-		<dt>int fadeOut</dt>
-		<dd>Time it take for the tooltip to fade out.</dd>
-		<dd>Default: 250</dd>
-		<dt>int fadeIn</dt>
-		<dd>Time it take for the tooltip to fade in.</dd>
-		<dd>Default: 100</dd>
-	</dl>
-	<h3>Styling:</h3>
-	<dl>
-		<dt>obj css</dt>
-		<dd>Object with CSS rules, applied in addition to default styles.</dd>
-		<dd>As with jQuery CSS, use JavaScript CSS syntax, or quote properties.</dd>
-		<dd>Example: "css: {textAlign: 'left'}" or "css: {'text-align': 'left'}"</dd>
-		<dd>Default: Empty.</dd>
-		<dt>bool zoom</dt>
-		<dd>Use a zoom effect to animate the tooltip from the dimensions and point of origin of the target element.</dd>
-		<dd>Special case: If target and tooltip are both images, the image will zoom as well</dd>
-		<dd>Default: false</dd>
-	</dl>
+	<p>The Tooltip Toolbox can be used to create a range of non-modal content; from very simple tooltips to complex dropdown menus.</p>
 </div>
+
 <div class="example">
 	
 	<h2>Example 1: Positioning the tooltip flush left above the element</h2>
@@ -437,8 +355,9 @@ $('.event_focus').tt({
 </div>
 <div class="example">
 	<h2>Example 8: A pretty example</h2>
+	<p>This takes advantage of a special case: If both the target element and the tooltip element are images, and zoom is enabled, we zoom the image</p>
 		<code>
-<pre>s
+<pre>
 $('.image_center').tt({
 	vAlign: 'absCenter',
 	align: 'absCenter',
@@ -454,14 +373,6 @@ $('.image_center').tt({
 </div>
 
 <div class="example">
-	<code>
-<pre>
-$('#dropdown').tt({
-	align: 'flushRight',
-	vAlign: 'below',
-	ttClass: 'dropdown'
-});</pre>
-	</code>
 	<h2>Example: A dropdown menu</h2>
 	<code>
 <pre>
@@ -495,26 +406,111 @@ $('.nested').tt({
 		<li><a class="nested" id="nested_dd" href="http://example.com/">Item 1</a>
 			<ul id="tt_nested_dd">
 				<li><a href="http://example.com/">Nested item 1</a></li>
-				<li><a href="http://example.com/">Nested item 1</a></li>
-				<li><a class="nested" id="nested_nested" href="http://example.com/">Nested item 1 with nesting</a>
+				<li><a href="http://example.com/">Nested item 2</a></li>
+				<li><a class="nested" id="nested_nested" href="http://example.com/">Nested item 3 with nesting</a>
 					<ul id="tt_nested_nested">
 						<li><a href="http://example.com/">Nested item 1</a></li>
-						<li><a href="http://example.com/">Nested item 1</a></li>
-						<li><a href="http://example.com/">Nested item 1 with nesting</a></li>
+						<li><a href="http://example.com/">Nested item 2</a></li>
+						<li><a href="http://example.com/">Nested item 3</a></li>
 					</ul>
 				</li>
 			</ul>
 		</li>
-		<li><a href="http://example.com/">Item 2</a></li>
-		<li><a href="http://example.com/">Item 1</a></li>
-		<li><a href="http://example.com/">Item 2</a></li>
-		<li><a href="http://example.com/">Item 1</a></li>
-		<li><a href="http://example.com/">Item 2</a></li>
-		<li><a href="http://example.com/">Item 1</a></li>
-		<li><a href="http://example.com/">Item 2</a></li>		
+		<li><a href="http://example.com/">Item 3</a></li>
+		<li><a href="http://example.com/">Item 4</a></li>
+		<li><a href="http://example.com/">Item 5</a></li>
+		<li><a href="http://example.com/">Item 6</a></li>
+		<li><a href="http://example.com/">Item 7</a></li>
+		<li><a href="http://example.com/">Item 8</a></li>
+		<li><a href="http://example.com/">Item 9</a></li>		
 	</ul>
 </div>
 
+<div class="intro">
 
+	<h2>Possible parameters:</h2>
+
+	<h3>Event handler:</h3>
+	<dl>
+		<dt>str showEvent</dt>  
+		<dd>Defines the event that activates the tooltip.</dd>
+		<dd>Possible values: mouseover, focus, click, dblclick, change etc.</dd>
+		<dd>Default: "mouseover"</dd>
+		<dt>str hideEvent</dt>
+		<dd>Defines the event that hides the tooltip.</dd>
+		<dd>Possible values: mouseout, blur, click, dblclick, change etc.</dd>
+		<dd>Default: "mouseout"</dd>
+	</dl>
+
+
+	<h3>CSS ids and classes:</h3>
+	<dl>
+		<dt>str ttClass</dt>
+		<dd>Class for the tooltip for overriding and additional styling.</dd>
+		<dd>Default: "tt_tip"</dd>
+		<dt>str activeClass</dt>
+		<dd>Class for the trigger element while tooltip is displayed.</dd>
+		<dd>Default: "tt_active"</dd>
+		<dt>str ttIdPrefix</dt> 
+		<dd>Prefix for the element ID that identifies the tooltip ID.</dd>
+		<dd>Example: element with id="test" looks for tooltip container with id="tt_test"</dd>
+		<dd>Default: "tt_"</dd>
+	</dl>
+	<h3>Positioning:</h3>
+	<dl>
+		<dt>str align:</dt>
+		<dd>Preferred horizontal alignment of the tooltip. </dd>
+		<dd>Values: "absCenter", "center", "right", "left", "flushRight", and "flushLeft".</dd>
+		<dd>Default: "flushLeft".</dd>
+		<dt>str vAlign:</dt>
+		<dd>Preferred vertical alignment of the tooltip.</dd>
+		<dd>Values: "absCenter", "center", "above" and "below".</dd>
+		<dd>Default: "above"</dd>
+		<dt>int windowMargin</dt>   
+		<dd>The tooltip's minimum margin from the window's edge.</dd>
+		<dd>Default: 5</dd>
+		<dt>int distanceX</dt>
+		<dd>The tooltip's horizontal distance from the trigger element.</dd>
+		<dd>Not used if align is flushLeft, flushRight or centered.</dd>
+		<dd>Default: 0  </dd>
+		<dt>int distanceY</dt>
+		<dd>The tooltip's vertical distance from the trigger element.</dd>
+		<dd>Not used for if vAlign is centered.</dd>
+		<dd>Default: 2</dd>
+		<dt>int nudgeX</dt>
+		<dd>Nudge along x axis. Use negative int to nudge left; positive int to nudge right.</dd>
+		<dd>Default: 0</dd>
+		<dt>int nudgeY</dt>
+		<dd>Nudge along y axis. Use negative int to nudge up; positive int to nudge down.</dd>
+		<dd>Default: 0</dd>
+	</dl>
+	<h3>Timing:</h3>
+	<dl>
+		<dt>int timeOut:</dt>
+		<dd>Time that tooltip is displayed after mouseout.</dd>
+		<dd>Default: 1000</dd>
+		<dt>int delay</dt>
+		<dd>Delay before displaying tooltip.</dd>
+		<dd>Default: 500</dd>
+		<dt>int fadeOut</dt>
+		<dd>Time it take for the tooltip to fade out.</dd>
+		<dd>Default: 250</dd>
+		<dt>int fadeIn</dt>
+		<dd>Time it take for the tooltip to fade in.</dd>
+		<dd>Default: 100</dd>
+	</dl>
+	<h3>Styling:</h3>
+	<dl>
+		<dt>obj css</dt>
+		<dd>Object with CSS rules, applied in addition to default styles.</dd>
+		<dd>As with jQuery CSS, use JavaScript CSS syntax, or quote properties.</dd>
+		<dd>Example: "css: {textAlign: 'left'}" or "css: {'text-align': 'left'}"</dd>
+		<dd>Default: Empty.</dd>
+		<dt>bool zoom</dt>
+		<dd>Use a zoom effect to animate the tooltip from the dimensions and point of origin of the target element.</dd>
+		<dd>Special case: If target and tooltip are both images, the image will zoom as well</dd>
+		<dd>Default: false</dd>
+	</dl>
+</div>
 </body>
 </html>
