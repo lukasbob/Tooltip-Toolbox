@@ -64,41 +64,42 @@
 	//							Special case: If target and tooltip are both images, the image will zoom as well
 	//							Default: false
 	
-	var doc = document.documentElement,
-		body = doc.body;
 	$.fn.tt = function(options) {
 		// build main options before element iteration
 		var opts = $.extend({},$.fn.tt.defaults,options);
 		return this.each(function() {
-			// iterate and reformat each matched element
-			var o = $.meta ? $.extend({},opts, $this.data()) : opts;
-			var $this = $(this);
+			var $this = $(this),
+				$ttTooltip,
+				$ttOrg;
 			
+			// Support for the meta plugin
+			var o = $.meta ? $.extend({},opts, $this.data()) : opts;
+
 			//Storage object for cached positioning values
 			$this.cache = {valid: false};
 			
 			//Support for tooltips on the title attribute
-			//Either use the trigger element's title or the target element, if it exists.
+			//Either use the trigger element's title attr or the target element, if it exists.
 			if ($this.attr('id').length === 0 || !($('#' + o.ttIdPrefix + $this.attr('id'))[0])) {
 				o.useTitle = true;
 				$this.ttTitle = $this.oldTitle = $this.attr('title');
 				$this.attr('title', '');
-				var $ttTooltip = $('<div/>').hide();
-				
+				$ttTooltip = $('<div><p>' + $this.ttTitle + '</p></div>').hide();
 			} else {
-				var $ttTooltip = $('#' + o.ttIdPrefix + $this.attr('id')).hide();
-				var orgParent = $ttTooltip.parent();
+				$ttTooltip = $('#' + o.ttIdPrefix + $this.attr('id')).hide();
+				var orgPos = $('<i id="org_' + $.data($this) + '"/>').insertAfter($ttTooltip).hide();
 			}
 			//Set initial styles: Define standard styles if no custom class is set.
 			var css = o.ttClass !== 'tt_tip' ? {position: 'absolute'} : {
 				position: 'absolute',
+				font: '11px "lucida grande", tahoma, helvetica, arial, sans-serif',
 				border: '1px solid #666',
 				background: '#ffd',
 				padding: '.5em',
 				'-webkit-border-radius': '5px',
-				'-webkit-box-shadow': '0 1px 3px rgba(0,0,0,.3)',
+				'-webkit-box-shadow': '0 6px 15px rgba(0,0,0,.6)',
 				'-moz-border-radius': '5px',
-				'-moz-box-shadow': '0 1px 3px rgba(0,0,0,.3)'
+				'-moz-box-shadow': '0 6px 15px rgba(0,0,0,.6)'
 			};
 			//Extend with options css properties
 			css = $.extend({},css,o.css);
@@ -108,27 +109,41 @@
 			
 			$this.bind(o.showEvent, delayShowTip);				
 			
-			//Bind mouseover and mouseout functions for the tooltip to the timer
+			//Make sure that we do not hide the tooltip when the mouse is over it.
 			$ttTooltip.bind('mouseover', function(e) {
 				clearTimeout($this.hideTimer);
-				$ttTooltip.bind(o.hideEvent, hideTip);			
+				$ttTooltip.one(o.hideEvent, hideTip);
 			});
-			
+			if (o.visibleOnScroll) {
+				//On scroll, recalculate position so we don't go offsreen.
+				$(window).bind('scroll', function () {
+					$ttTooltip.css(getTooltipPosition());
+				});
+			}
+			//On resize, kill cached position data and recalculate.
+			$(window).bind('resize', function(){
+				$this.cache.valid = false;
+				$ttTooltip.css(getTooltipPosition());
+			});
+
 			//
 			// private functions
 			//
 			
 			//A wrapper for the showTip function in order to enable delaying it.
 			function delayShowTip() {
+				clearTimeout($this.delayTimer);
+				clearTimeout($this.hideTimer);
 				$this.delayTimer = setTimeout(showTip, o.delay);
-				$this.bind(o.hideEvent, hideTip);
+				$this.one(o.hideEvent, hideTip);
 			}
 			
 			//Hide the Tooltip and do some cleanup.
-			function hideTip() {				
+			function hideTip() {
 				clearTimeout($this.delayTimer);
 				clearTimeout($this.hideTimer);
 				$this.hideTimer = setTimeout(function() {
+					//TODO: Is there a better way to handle nested tooltips? With a global bool isNested?
 					//Don't hide tooltips that contain nested tooltips - wait for child element's activeClass to go away.
 					if ($ttTooltip.find('.' + o.activeClass)[0]) {					
 						hideTip();
@@ -137,14 +152,9 @@
 					$this.removeClass(o.activeClass);
 					$ttTooltip.fadeOut(o.fadeOut, function(){
 						$ttTooltip.removeClass(o.ttClass);
-						$(window).unbind('scroll').unbind('resize');
-						
 						//Cleanup: Put that content back where you found it!
-						if (orgParent){
-							$ttTooltip.appendTo(orgParent);
-						}
-						if ($this.oldTitle) {
-							$this.attr('title', $this.oldTitle);
+						if (orgPos){
+							$ttTooltip.insertBefore(orgPos);
 						}
 					});
 				},
@@ -155,109 +165,75 @@
 				//If we use the target element's title, build the content.
 				if (o.useTitle) {
 					if ($this.ttTitle.length === 0) return;
-					$this.ttTitle = $this.ttTitle.replace(/\*\*([^*]*)\*\*/g, '<strong class="highlight">$1</strong>');
-					$this.ttTitle = $this.ttTitle.replace(/\*_\*([^*]*)\*_\*/g, '<strong class="example">$1</strong>');
-					var parts = $this.ttTitle.split(' - ');
-					for (var i=0; i < parts.length; i++) {
-						var elm = i === 0 ? 'h3' : 'p';
-						parts[i] = '<' + elm + '>' + parts[i] + '</' + elm + '>';
-					};
-					$ttTooltip.html(parts.join(''));
-					$this.attr('title', '');
 				}
-				//Move the tooltip to the dom target element
+				//Move the tooltip to body to avoid issues with position and overflow CSS settings on the page.
 				$ttTooltip.appendTo('body');
-				
-				calculatePositions();
+				$this.addClass(o.activeClass);
 				
 				//Get target dimensions and position of the tooltip
-				var tipPosition = positionTip();
-
-				$this.addClass(o.activeClass);
+				var tipPosition = getTooltipPosition();
+				
 				//Zoom!
 				if (o.zoom) {
-					//Set initial dimensions and position to be equal to the target element's
-					$ttTooltip.css({
-						position: 'absolute',
+					var ratio = ($this.cache.elmDim.h * $this.cache.elmDim.w) / ($this.cache.ttInnerDim.h * $this.cache.ttInnerDim.w);
+					// Named CSS attributes to scale by this area ratio:
+					var cssAttrs = {'fontSize': ''};	
+					var startCSS = {
 						opacity: 0,
 						left: $this.cache.elmOffset.left,
 						top: $this.cache.elmOffset.top,
 						width: $this.cache.elmDim.w,
 						height: $this.cache.elmDim.h
-					});
-					//Set the endpoint of the animation by extending the target dimensions
-					var endState = $.extend({}, tipPosition, {
+					};
+					var endCSS = $.extend({}, tipPosition, {
 						width: $this.cache.ttInnerDim.w + 1, 
 						height: $this.cache.ttInnerDim.h + 1,
 						opacity: 1
 					});
-					//Experimental: Zoom image dimensions if both tooltip and target element is an image.
-					if ($this.nodeName === 'IMG' && $ttTooltip.nodeName === 'IMG') {
-						$ttTooltip.css({
-							width: $this.cache.elmDim.w,
-							height: $this.cache.elmDim.h
-						}).animate({
-							width: $(this).width(), //.attr('width'),
-							height: $(this).height() //.attr('height')
-						}, o.fadeIn);
-					}
-					
+					for (i in cssAttrs) {
+						cssAttrs[i] = endCSS[i] = $ttTooltip.css(i);
+						startCSS[i] = parseInt(cssAttrs[i].split('px')[0], 10) * ratio;
+					};
+					//Set initial dimensions and position to be equal to the target element's
+					$ttTooltip.css(startCSS);
 					//Temporarily unbind events
-					$ttTooltip.unbind(o.hideEvent);
-					$this.unbind(o.showEvent)
-						.unbind(o.hideEvent);
-					$ttTooltip.addClass(o.ttClass)
-						.animate(endState, o.fadeIn, function() {
-							//We're done animating. Rebind events.
-							$ttTooltip.bind(o.hideEvent, hideTip);
-							//we only need to bind the showEvent. The hideEvent is bound on show.
-							$this.bind(o.showEvent, delayShowTip);
-						}
-					);
+					$ttTooltip.unbind(o.hideEvent, hideTip);
+					$this.unbind(o.showEvent, delayShowTip).unbind(o.hideEvent, hideTip);
+					$ttTooltip.addClass(o.ttClass).animate(endCSS, o.fadeIn, function() {
+						//Rebind events.
+						$ttTooltip.bind(o.hideEvent, hideTip);
+						//Bind the showEvent. The hideEvent is bound on show.
+						$this.bind(o.showEvent, delayShowTip);
+					});
 				} else {
 					$ttTooltip.addClass(o.ttClass).css(tipPosition).fadeIn(o.fadeIn);
 				}
-				$(window).bind('scroll', function () {
-					$ttTooltip.css(positionTip());
-				}).bind('resize', function(){					
-					$this.cache.valid = false;
-					$ttTooltip.css(positionTip());
-				});
 			}
-			function calculatePositions() {
-				//If the cache has not been invalidated, don't do anything.
+			function updateCache() {
 				if ($this.cache.valid) return;
-				
-				//Element offset - distance from page top/left
-				$this.cache.elmOffset = $this.offset();				
-				
-				//Element dimensions
-				$this.cache.elmDim = {
-					w: $this.outerWidth(),
-					h: $this.outerHeight()
+				$this.cache = {
+					elmOffset: $this.offset(),
+					elmDim: {
+						w: $this.outerWidth(),
+						h: $this.outerHeight()
+					},
+					ttDim: {
+						w: $ttTooltip.outerWidth(),
+						h: $ttTooltip.outerHeight()
+					},
+					ttInnerDim: {
+						w: $ttTooltip.width(),
+						h: $ttTooltip.height()
+					},
+					vp: {
+						w: $(window).width(),
+						h: $(window).height()
+					},
+					valid: true
 				};
-				
-				//Tooltip dimensions
-				$this.cache.ttDim = {
-					w: $ttTooltip.outerWidth(),
-					h: $ttTooltip.outerHeight()
-				};
-				//Inner dimensions of the tooltip for use in zooming.
-				$this.cache.ttInnerDim = {
-					w: $ttTooltip.width(),
-					h: $ttTooltip.height()
-				};
-				
-				//Viewport dimensions
-				//TODO: Global.
-				$this.cache.vp = {
-					w: $(window).width(),
-					h: $(window).height()
-				};
-				$this.cache.valid = true;
 			}
-			function positionTip() {
-				calculatePositions();
+			function getTooltipPosition() {
+				updateCache();
 				//Save as copy of the original preferences.
 				var align = {
 					vert: o.vAlign,
@@ -266,8 +242,8 @@
 				
 				//Scroll position
 				var scroll = {
-					left: $(body).scrollLeft(),
-					top: $(body).scrollTop()
+					left: $(document.documentElement.body).scrollLeft(),
+					top: $(document.documentElement.body).scrollTop()
 				};
 				
 				//All the possible positions for the tooltip
@@ -289,7 +265,7 @@
 						flushLeft: $this.cache.elmOffset.left, 
 						flushRight: $this.cache.elmOffset.left + $this.cache.elmDim.w - $this.cache.ttDim.w,
 						absLeft: scroll.left + o.windowMargin,
-						absRight: $this.cache.vp.w - $this.cache.ttDim.w - o.windowMargin,
+						absRight: $this.cache.vp.w + scroll.left - $this.cache.ttDim.w - o.windowMargin,
 						absCenter: scroll.left + $this.cache.vp.w/2 - $this.cache.ttDim.w/2
 					}
 				};
@@ -304,12 +280,23 @@
 				};
 				//Move the tooltip around if there isn't space in the current position.
 				if ($this.cache.vp.h < $this.cache.ttDim.h) align.vert = 'absTop';
-				else if (!space.above && !space.below && align.vert == 'below') align.vert = 'absBottom';
-				else if ((align.vert === 'above' || align.vert === 'center') && !space.above) align.vert = 'absTop';
-				else if ((align.vert === 'below' || align.vert === 'center') && !space.below) align.vert = 'absBottom';
-				if (!space.left && !space.right) align.hor = 'absLeft';
-				else if ((align.hor === 'right' || align.hor === 'flushLeft' || align.hor === 'center') && !space.right) align.hor = 'absRight';
-				else if ((align.hor === 'left' || align.hor === 'flushRight' || align.hor === 'center') && !space.left) align.hor = 'absLeft';
+				else if (!space.above && !space.below && align.vert == 'below') {
+					align.vert = 'absBottom';
+				} else if ((align.vert === 'above' || align.vert === 'center') && !space.above) {
+					align.vert = 'absTop';
+				} else if ((align.vert === 'below' || align.vert === 'center') && !space.below) {
+					align.vert = 'absBottom';
+				}
+				
+				if (!space.left && !space.right) {
+					align.hor = 'absLeft';
+//				} else if ((align.hor === 'right' || align.hor === 'flushLeft' || align.hor === 'center') && !space.right) {
+				} else if ((/^right|flushLeft|center$/i).test(align.hor) && !space.right) {
+					cons('works');
+					align.hor = 'absRight';
+				} else if ((align.hor === 'left' || align.hor === 'flushRight' || align.hor === 'center') && !space.left) {
+					align.hor = 'absLeft';
+				}
 				return {
 					left: pos.left[align.hor],
 					top: pos.top[align.vert]
@@ -334,6 +321,7 @@
 		hideEvent: 'mouseout',
 		align: 'flushLeft',
 		vAlign: 'above',
+		visibleOnScroll: true,
 		windowMargin: 5,
 		distanceX: 2,
 		distanceY: 2,

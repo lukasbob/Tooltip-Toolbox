@@ -73,14 +73,31 @@
 		font-weight: bold;
 	}
 	.customTip {
-		background: #efe;
-		padding: 1em;
-		border: 5px solid rgba(0, 0, 0, .4);
-		-moz-border-radius: 10px;
-		-webkit-border-radius: 10px;
+		padding: 0;
+		width: 200px;
+		line-height: 1.3em;
+		font-size: 11px;
 	}
-	strong.customActive {
-		background: #efe;
+	strong.custom_class.customActive.example {
+		background-position: bottom left;
+	}
+	.customTip h3 {
+		padding: 10px 10px 0;
+		margin-top: -10px;
+		background: url(img/callout.png) no-repeat top center;
+	}
+	.customTip p {
+		padding: 10px 10px 20px;
+		background: url(img/callout.png) no-repeat bottom center;
+	}
+	strong.custom_class.example {
+		display: block;
+		padding: 0;
+		border: 0 none;
+		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAgCAYAAAAbifjMAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABh0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzT7MfTgAAABZ0RVh0Q3JlYXRpb24gVGltZQAwOS8xNS8wOfgnw5UAAAPQSURBVEiJrZRvTNVlFMc/99rakBeiDIkYXLaI6R0kW09TegVtyQZrYhtRLf8QZNZ0l9YbYyxZa9pq1mX2ClCuVxg2W7vQCAQnZKUX9mQoVAx0ScYw0YAGXP56evH7073cVi/svHp2zvl+n+d8zzmPQ0R4EHvIOiilrGMc4AF2ANmmrx9oAWqAKQCtNQDOVeA9wAiQAxwBEoANgBd4Frhu5tgY+wVm4AjwBhDQWi+HxfxKqTNAMXDc9J0KJ4gDjgFvaq0/N2/IBXLNuE9rfRNoUkqtNXNbgCmnmeABhoBAGLgbKAL2Av1KqTgz97RZpsfWwBSsVmu9aArUA5RqrbNNIddZgmqt54EmE2MTZAOtYTWjtfaZt/pM182w8FcWoUXgAGKItn4gDcgzNbBsxTpYBD8A+f9A4AIqzJLCrdgktwkCQKlS6uFViaWrGZVSMcAujC7YBDWAG3hpVX41RhfC7VUgGWO47DmYBt4GPlZKOYEmrfWi1jot7Oa1wD7gMEYLp8MJAPwYYh4DDiql6oE2IBZ4DngeeMwE+y2Qw9rGsH1YB1Rg9HmL6buKoZMX+BP+XibHg66z879T/t1sDRyFFQBUvbjdNTw24RscHd/6863fYwA2pySGMl1JvRnJCXvfP9M5CiBtXgMnIja4bPu2upbgQNmT6SmO8vwc8raks8bppDU4SG3HJYZu3ZGinKwTJzqDr9kkIgIFHsq8zXWPvvKunP2mX5aWV2S1LSwtS+MFLetfeEfKvM11FHgMrIhQ5W9zxZdU3v/s4hUb0H1tRA43tsvhxnb55fY921/bfkniSyrvV/nbXCJiiDg8NuHblLLRUZTzBAA9A9fJO/QpgcsD+M73kX3wQ6ZmQwDsekbxeHKCY3hswgcYL3DvPzp36nxfxJMbunpFRGRyZk4o8Ej3tRE7drz1orj3H52zS3AUVsjkzFxU3ZMzc7LjvXqhwBNRxo3xu+IorBARMdooIoQWloiLjfwSsg98RFxsDN0fHCAtcYPtX+N0RA6SO/WR0LkrQ1FDMnrnD7yv7yQ3Kz3Cf/bbfjanJIZsgkxXUrChq5fF5ZWIxIa3Xo4iDS0ucfqCJtOV1GsTZCQn7Pnp19vS/PX3EcnVTR34uvoifCc7exm7Oy0ZyQm77S5Q4KG8prk2vqRSTnYGZWFpOUrQ2fkF+STQI3HFh6S8prnWGqSoUQ5cHihL3bjeUZ6/jcKn3MzOL/Jl34988d1Vbozfk51PZ9XXnwvuA2OU7XUOW6aU4bEJ/+Do+NYhc5k2GcsUdKcm7q5u6vjNAsP/8B/8BfKuEJNUFfzAAAAAAElFTkSuQmCC) no-repeat top left;
+		height: 16px;
+		width: 16px;
+		text-indent: -999em
 	}
 	dt {
 		font: 13px helvetica;
@@ -146,7 +163,8 @@
 			css: {
 				width: '300px'
 			},
-			zoom: true
+			zoom: true,
+			fadeIn: 5000
 		});
 		$('.flushRight').tt({
 			vAlign: 'above',
@@ -158,7 +176,9 @@
 		});
 		$('.custom_class').tt({
 			ttClass: 'customTip',
-			activeClass: 'customActive'
+			activeClass: 'customActive',
+			align: 'center',
+			distanceY: -10
 		});
 		$('.title').tt({
 			css: {
@@ -199,9 +219,13 @@
 			ttClass: 'tt_dropdown',
 			distanceX: 0,
 			nudgeX: -2,
-			timeOut: 400,
+			timeOut: 0,
 			delay: 400
-		})
+		});
+		$('#tt_dropdown a').bind('click', function(e){
+			$('#tt_dropdown').after('<p>You clicked a menu item!</p>');
+			e.preventDefault();
+		});
 	})
 </script>
 </head>
@@ -209,7 +233,7 @@
 
 <h1>Tooltip examples</h1>
 <div class="intro">
-	<p>The Tooltip Toolbox can be used to create a range of non-modal content; from very simple tooltips to complex dropdown menus.</p>
+	<p>The Tooltip Toolbox can be used to create a range of non-modal popup content boxes, from very simple tooltips to complex dropdown menus. </p>
 </div>
 
 <div class="example">
@@ -304,7 +328,8 @@ CSS:
 	</code>
 	<p class="test">Lorem ipsum dolor sit amet, mco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Here is a <strong class="custom_class example" id="example5">tooltip</strong></p>
 	<div id="tt_example5">
-		<p><strong>Tooltip for example 5</strong></p>
+		<h3>Title</h3>
+		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 	</div>
 </div>
 <div class="example">
@@ -493,10 +518,10 @@ $('.nested').tt({
 		<dd>Delay before displaying tooltip.</dd>
 		<dd>Default: 500</dd>
 		<dt>int fadeOut</dt>
-		<dd>Time it take for the tooltip to fade out.</dd>
+		<dd>Time it takes for the tooltip to fade out.</dd>
 		<dd>Default: 250</dd>
 		<dt>int fadeIn</dt>
-		<dd>Time it take for the tooltip to fade in.</dd>
+		<dd>Time it takes for the tooltip to fade in.</dd>
 		<dd>Default: 100</dd>
 	</dl>
 	<h3>Styling:</h3>
@@ -508,7 +533,6 @@ $('.nested').tt({
 		<dd>Default: Empty.</dd>
 		<dt>bool zoom</dt>
 		<dd>Use a zoom effect to animate the tooltip from the dimensions and point of origin of the target element.</dd>
-		<dd>Special case: If target and tooltip are both images, the image will zoom as well</dd>
 		<dd>Default: false</dd>
 	</dl>
 </div>
