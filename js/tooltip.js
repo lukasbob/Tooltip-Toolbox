@@ -44,7 +44,7 @@
 	//
 	// _Timing:_
 	//
-	// int timeOut:		Time that tooltip is displayed after mouseout.
+	// int timeOut		Time that tooltip is displayed after mouseout.
 	//							Default: 1000
 	// int delay			Delay before displaying tooltip.
 	//							Default: 500
