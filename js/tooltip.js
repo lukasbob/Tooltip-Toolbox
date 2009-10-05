@@ -77,7 +77,7 @@
 
 			//Storage object for cached positioning values
 			$this.cache = {valid: false};
-			
+			$this.isOn = false;
 			//Support for tooltips on the title attribute
 			//Either use the trigger element's title attr or the target element, if it exists.
 			if ($this.attr('id').length === 0 || !($('#' + o.ttIdPrefix + $this.attr('id'))[0])) {
@@ -117,13 +117,19 @@
 			if (o.visibleOnScroll) {
 				//On scroll, recalculate position so we don't go offsreen.
 				$(window).bind('scroll', function () {
-					$ttTooltip.css(getTooltipPosition());
+					//Don't do anything igf the tooltip iis not on!'
+					if ($this.isOn) {
+						$ttTooltip.css(getTooltipPosition());
+					}
 				});
 			}
 			//On resize, kill cached position data and recalculate.
 			$(window).bind('resize', function(){
 				$this.cache.valid = false;
-				$ttTooltip.css(getTooltipPosition());
+				//Don't reposition if tooltip isn't on!
+					if ($this.isOn) {
+						$ttTooltip.css(getTooltipPosition());
+					}					
 			});
 
 			//
@@ -151,10 +157,10 @@
 					}					
 					$this.removeClass(o.activeClass);
 					$ttTooltip.fadeOut(o.fadeOut, function(){
-						$ttTooltip.removeClass(o.ttClass);
+						$this.isOn = false;
 						//Cleanup: Put that content back where you found it!
 						if (orgPos){
-							$ttTooltip.insertBefore(orgPos);
+							$ttTooltip.insertBefore(orgPos);						
 						}
 					});
 				},
@@ -169,6 +175,7 @@
 				//Move the tooltip to body to avoid issues with position and overflow CSS settings on the page.
 				$ttTooltip.appendTo('body');
 				$this.addClass(o.activeClass);
+				$this.isOn = true;
 				
 				//Get target dimensions and position of the tooltip
 				var tipPosition = getTooltipPosition();
@@ -290,11 +297,9 @@
 				
 				if (!space.left && !space.right) {
 					align.hor = 'absLeft';
-//				} else if ((align.hor === 'right' || align.hor === 'flushLeft' || align.hor === 'center') && !space.right) {
 				} else if ((/^right|flushLeft|center$/i).test(align.hor) && !space.right) {
-					cons('works');
 					align.hor = 'absRight';
-				} else if ((align.hor === 'left' || align.hor === 'flushRight' || align.hor === 'center') && !space.left) {
+				} else if ((/^left|flushRight|center$/i).test(align.hor) && !space.left) {			
 					align.hor = 'absLeft';
 				}
 				return {
