@@ -204,6 +204,7 @@
 			hideEvent: 'click',
 			timeOut: 0
 		});
+		$('.img_title').tt();
 		$('.dropdown').tt({
 			align: 'flushLeft',
 			vAlign: 'below',
@@ -380,7 +381,13 @@ $('.event_focus').tt({
 </div>
 <div class="example">
 	<h2>Example 8: A pretty example</h2>
-	<p>This takes advantage of a special case: If both the target element and the tooltip element are images, and zoom is enabled, we zoom the image</p>
+	<p>Click to zoom the image.</p>
+	<h3>HTML</h3>
+	<code>
+		<pre>&lt;img id=&quot;example_8&quot; class=&quot;image_center&quot; src=&quot;http://farm3.static.flickr.com/2612/3785454856_0b4fc9b9f4_t.jpg&quot;&gt;
+&lt;img id=&quot;tt_example_8&quot; width=&quot;500&quot; height=&quot;333&quot; src=&quot;http://farm3.static.flickr.com/2612/3785454856_0b4fc9b9f4.jpg&quot;&gt;</pre>
+	</code>
+	<h3>JavaScript</h3>
 		<code>
 <pre>
 $('.image_center').tt({
@@ -393,12 +400,25 @@ $('.image_center').tt({
 	timeOut: 0
 });</pre>
 	</code>
-	<p class="test"><img class="image_center example" id="example_8" src="http://farm1.static.flickr.com/25/95283121_f300f7d188_t.jpg"></p>
-	<img id="tt_example_8" width="500" height="333" src="http://farm1.static.flickr.com/25/95283121_f300f7d188.jpg">
+	<p class="test"><img class="image_center example" id="example_8" src="http://farm3.static.flickr.com/2612/3785454856_0b4fc9b9f4_t.jpg"></p>
+	<img id="tt_example_8" width="500" height="333" src="http://farm3.static.flickr.com/2612/3785454856_0b4fc9b9f4.jpg">
 </div>
-
 <div class="example">
-	<h2>Example: A dropdown menu</h2>
+	<h2>Example 9: An image</h2>
+	<h3>HTML</h3>
+	<code>
+<pre>
+&lt;img class=&quot;img_title&quot; title=&quot;http://farm3.static.flickr.com/2612/3785454856_0b4fc9b9f4_t.jpg&quot; src=&quot;http://farm3.static.flickr.com/2612/3785454856_0b4fc9b9f4_t.jpg&quot;&gt;</pre>
+	</code>
+	<h3>JavaScript</h3>
+		<code>
+<pre>
+$('.img_title').tt();</pre>
+	</code>
+	<p class="test"><img class="img_title example" id="example_9" title="http://farm3.static.flickr.com/2612/3785454856_0b4fc9b9f4_t.jpg" src="http://farm3.static.flickr.com/2612/3785454856_0b4fc9b9f4_t.jpg"></p>
+</div>
+<div class="example">
+	<h2>Example 10: A dropdown menu</h2>
 	<code>
 <pre>
 //For the main dropdown menu:
