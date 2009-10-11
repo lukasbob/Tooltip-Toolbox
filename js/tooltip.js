@@ -69,8 +69,7 @@
 		var opts = $.extend({},$.fn.tt.defaults,options);
 		return this.each(function() {
 			var $this = $(this),
-				$ttTooltip,
-				$ttOrg;
+				$ttTooltip;
 			
 			// Support for the meta plugin
 			var o = $.meta ? $.extend({},opts, $this.data()) : opts;
@@ -81,12 +80,13 @@
 			//Support for tooltips on the title attribute
 			//Either use the trigger element's title attr or the target element, if it exists.
 			if ($this.attr('id').length === 0 || !($('#' + o.ttIdPrefix + $this.attr('id'))[0])) {
-				o.useTitle = true;
+				if (!($this.attr('title')) || $this.attr('title').length === 0) return;
 				$this.ttTitle = $this.oldTitle = $this.attr('title');
 				$this.attr('title', '');
 				$ttTooltip = $('<div><p>' + $this.ttTitle + '</p></div>').hide();
 			} else {
 				$ttTooltip = $('#' + o.ttIdPrefix + $this.attr('id')).hide();
+				//Marker for the initial position of the tooltip, so we can replace it on hide.
 				var orgPos = $('<i id="org_' + $.data($this) + '"/>').insertAfter($ttTooltip).hide();
 			}
 			//Set initial styles: Define standard styles if no custom class is set.
@@ -107,7 +107,7 @@
 			//Set initial styling and class names from options.
 			$ttTooltip.addClass(o.ttClass).css(css);
 			
-			$this.bind(o.showEvent, delayShowTip);				
+			$this.bind(o.showEvent, delayShowTip);
 			
 			//Make sure that we do not hide the tooltip when the mouse is over it.
 			$ttTooltip.bind('mouseover', function(e) {
@@ -117,7 +117,7 @@
 			if (o.visibleOnScroll) {
 				//On scroll, recalculate position so we don't go offsreen.
 				$(window).bind('scroll', function () {
-					//Don't do anything igf the tooltip iis not on!'
+					//Don't do anything if the tooltip is not on!'
 					if ($this.isOn) {
 						$ttTooltip.css(getTooltipPosition());
 					}
@@ -129,7 +129,7 @@
 				//Don't reposition if tooltip isn't on!
 					if ($this.isOn) {
 						$ttTooltip.css(getTooltipPosition());
-					}					
+					}
 			});
 
 			//
@@ -151,27 +151,30 @@
 				$this.hideTimer = setTimeout(function() {
 					//TODO: Is there a better way to handle nested tooltips? With a global bool isNested?
 					//Don't hide tooltips that contain nested tooltips - wait for child element's activeClass to go away.
-					if ($ttTooltip.find('.' + o.activeClass)[0]) {					
+					if ($ttTooltip.find('.' + o.activeClass)[0]) {
 						hideTip();
 						return;
-					}					
+					}
 					$this.removeClass(o.activeClass);
 					$ttTooltip.fadeOut(o.fadeOut, function(){
 						$this.isOn = false;
 						//Cleanup: Put that content back where you found it!
 						if (orgPos){
-							$ttTooltip.insertBefore(orgPos);						
+							$ttTooltip.insertBefore(orgPos);
 						}
+						if (o.onhide) {
+							o.onhide({
+								elm: $this,
+								tt: $ttTooltip,
+								opt: o
+							});
+						};
 					});
 				},
 				o.timeOut);
 			}
 			
 			function showTip() {
-				//If we use the target element's title, build the content.
-				if (o.useTitle) {
-					if ($this.ttTitle.length === 0) return;
-				}
 				//Move the tooltip to body to avoid issues with position and overflow CSS settings on the page.
 				$ttTooltip.appendTo('body');
 				$this.addClass(o.activeClass);
@@ -213,7 +216,15 @@
 						$this.bind(o.showEvent, delayShowTip);
 					});
 				} else {
-					$ttTooltip.addClass(o.ttClass).css(tipPosition).fadeIn(o.fadeIn);
+					$ttTooltip.addClass(o.ttClass).css(tipPosition).fadeIn(o.fadeIn, function() {
+						if (o.onshow) {
+							o.onshow({
+								elm: $this,
+								tt: $ttTooltip,
+								opt: o
+							});
+						};
+					});
 				}
 			}
 			function updateCache() {
@@ -276,7 +287,6 @@
 						absCenter: scroll.left + $this.cache.vp.w/2 - $this.cache.ttDim.w/2
 					}
 				};
-				
 				//Booleans for whether there is space for the tooltip in a variety of positions.
 				//Compares tooltip offset to the absolute top/left position keeping tooltip on-screen
 				var space = {
@@ -299,7 +309,7 @@
 					align.hor = 'absLeft';
 				} else if ((/^right|flushLeft|center$/i).test(align.hor) && !space.right) {
 					align.hor = 'absRight';
-				} else if ((/^left|flushRight|center$/i).test(align.hor) && !space.left) {			
+				} else if ((/^left|flushRight|center$/i).test(align.hor) && !space.left) {
 					align.hor = 'absLeft';
 				}
 				return {
