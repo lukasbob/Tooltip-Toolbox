@@ -1,4 +1,4 @@
-﻿(function($) {
+(function($) {
 	//
 	// **Possible parameters:**
 	//
@@ -23,7 +23,7 @@
 	//
 	// _Positioning:_
 	//
-	// str align:			Preferred horizontal alignment of the tooltip. 
+	// str align:			Preferred horizontal alignment of the tooltip.
 	//							Values: "absCenter", "center", "right", "left", "flushRight", and "flushLeft".
 	//							Default: "flushLeft".
 	// str vAlign:			Preferred vertical alignment of the tooltip.
@@ -33,7 +33,7 @@
 	//							Default: 5
 	// int distanceX		The tooltip's horizontal distance from the trigger element.
 	//							Not used if align is flushLeft, flushRight or centered.
-	//							Default: 0	
+	//							Default: 0
 	// int distanceY		The tooltip's vertical distance from the trigger element.
 	//							Not used for if vAlign is centered.
 	//							Default: 2
@@ -59,66 +59,62 @@
 	//							As with jQuery CSS, use JavaScript CSS syntax, or quote properties.
 	//							Example: "css: {textAlign: 'left'}" or "css: {'text-align': 'left'}"
 	//							Default: Empty.
-	// bool zoom			Use a zoom effect to animate the tooltip from the dimensions 
+	// bool zoom			Use a zoom effect to animate the tooltip from the dimensions
 	//							and point of origin of the target element.
 	//							Special case: If target and tooltip are both images, the image will zoom as well
 	//							Default: false
-	
 	$.fn.tt = function(options) {
 		// build main options before element iteration
 		var opts = $.extend({},$.fn.tt.defaults,options);
 		return this.each(function() {
 			var $this = $(this),
-				$ttTooltip;
-			
-			// Support for the meta plugin
-			var o = $.meta ? $.extend({},opts, $this.data()) : opts;
-
+				$ttTooltip,
+				// Support for the meta plugin
+				o = $.meta ? $.extend({},opts, $this.data()) : opts,
+				// Styling
+				css = o.ttClass !== 'tt_tip' ? {position: 'absolute', zIndex: '1000'} : {
+					position: 'absolute',
+					zIndex: '1000',
+					font: '11px "lucida grande", tahoma, helvetica, arial, sans-serif',
+					border: '1px solid #666',
+					background: '#ffd',
+					padding: '.5em',
+					'-webkit-border-radius': '5px',
+					'-webkit-box-shadow': '0 6px 15px rgba(0,0,0,.6)',
+					'-moz-border-radius': '5px',
+					'-moz-box-shadow': '0 6px 15px rgba(0,0,0,.6)'
+				};
 			//Storage object for cached positioning values
 			$this.cache = {valid: false};
 			$this.isOn = false;
+			$this.jqID = $.data($this);
 			//Support for tooltips on the title attribute
 			//Either use the trigger element's title attr or the target element, if it exists.
 			if ($this.attr('id').length === 0 || !($('#' + o.ttIdPrefix + $this.attr('id'))[0])) {
 				if (!($this.attr('title')) || $this.attr('title').length === 0) return;
 				$this.ttTitle = $this.oldTitle = $this.attr('title');
-				$this.attr('title', '');
-				$ttTooltip = $('<div><p>' + $this.ttTitle + '</p></div>').hide();
+				$this.attr('title', '');			
+				$ttTooltip = $('<div/>').hide();
 			} else {
 				$ttTooltip = $('#' + o.ttIdPrefix + $this.attr('id')).hide();
 				//Marker for the initial position of the tooltip, so we can replace it on hide.
 				var orgPos = $('<i id="org_' + $.data($this) + '"/>').insertAfter($ttTooltip).hide();
 			}
-			//Set initial styles: Define standard styles if no custom class is set.
-			var css = o.ttClass !== 'tt_tip' ? {position: 'absolute', zIndex: '1000'} : {
-				position: 'absolute',
-				zIndex: '1000',
-				font: '11px "lucida grande", tahoma, helvetica, arial, sans-serif',
-				border: '1px solid #666',
-				background: '#ffd',
-				padding: '.5em',
-				'-webkit-border-radius': '5px',
-				'-webkit-box-shadow': '0 6px 15px rgba(0,0,0,.6)',
-				'-moz-border-radius': '5px',
-				'-moz-box-shadow': '0 6px 15px rgba(0,0,0,.6)'
-			};
 			//Extend with options css properties
 			css = $.extend({},css,o.css);
-			
+			$ttTooltip.tooltips = {};
 			//Set initial styling and class names from options.
 			$ttTooltip.addClass(o.ttClass).css(css);
-			
 			$this.bind(o.showEvent, delayShowTip);
-			
 			//Make sure that we do not hide the tooltip when the mouse is over it.
 			$ttTooltip.bind('mouseover', function(e) {
-				clearTimeout($this.hideTimer);
+				clearTimers();			
 				$ttTooltip.one(o.hideEvent, hideTip);
 			});
 			if (o.visibleOnScroll) {
 				//On scroll, recalculate position so we don't go offsreen.
 				$(window).bind('scroll', function () {
-					//Don't do anything if the tooltip is not on!'
+					//Don't do anything if the tooltip is not on!
 					if (!($this.isOn)) return;
 					$ttTooltip.css(getTooltipPosition());
 				});
@@ -130,101 +126,67 @@
 					if (!($this.isOn)) return;
 						$ttTooltip.css(getTooltipPosition());
 			});
-
 			//
 			// private functions
 			//
-			
 			//A wrapper for the showTip function in order to enable delaying it.
 			function delayShowTip() {
-				clearTimeout($this.delayTimer);
-				clearTimeout($this.hideTimer);
+				clearTimers();				
 				$this.delayTimer = setTimeout(showTip, o.delay);
 				$this.one(o.hideEvent, hideTip);
+				callbackFn('beforeshow');
 			}
-			
 			//Hide the Tooltip and do some cleanup.
 			function hideTip() {
-				clearTimeout($this.delayTimer);
-				clearTimeout($this.hideTimer);
+				clearTimers();			
+				$this.willHide = true;
 				$this.hideTimer = setTimeout(function() {
-					//TODO: Is there a better way to handle nested tooltips? With a global bool isNested?
-					//Don't hide tooltips that contain nested tooltips - wait for child element's activeClass to go away.
-					if ($ttTooltip.find('.' + o.activeClass)[0]) {					
-						hideTip();
-						return;
-					}
+					//Don't hide tooltips that contain nested tooltips - wait for nested tooltips to go away
+					for (i in $ttTooltip.tooltips) {
+						$($ttTooltip.tooltips[i]).bind('hide', function() {
+							if ($this.willHide) hideTip();
+						});
+						if ($ttTooltip.tooltips[i].isOn) return;
+					}					
 					$this.removeClass(o.activeClass);
 					$ttTooltip.fadeOut(o.fadeOut, function(){
+						$this.trigger('hide');
 						$this.isOn = false;
 						//Cleanup: Put that content back where you found it!
+						if ($this.ttTitle) $ttTooltip.html('');
 						if (orgPos){
 							$ttTooltip.insertBefore(orgPos);
 						}
-						if (o.onhide) {
-							o.onhide({
-								elm: $this,
-								tt: $ttTooltip,
-								opt: o
-							});
-						};
+						callbackFn('onhide');
 					});
 				},
 				o.timeOut);
 			}
-			
+			function clearTimers() {
+				clearTimeout($this.delayTimer);
+				clearTimeout($this.hideTimer);
+				$this.willHide = false;
+			};
 			function showTip() {
+				//Register the tooltip w/unique ID:
+				$.fn.tt.tooltips[$.data($ttTooltip)] = $ttTooltip;
+				$this.parents().each(function() {
+					for(i in $.fn.tt.tooltips) {
+						//if the parent is in the tooltip registry...
+						if (this === $.fn.tt.tooltips[i][0]) {
+							//register this as a nested tooltip of the parent
+							$.fn.tt.tooltips[i].tooltips[$this.jqID] = $this;
+						}
+					}
+				});
 				//Move the tooltip to body to avoid issues with position and overflow CSS settings on the page.
 				$ttTooltip.appendTo('body');
 				$this.addClass(o.activeClass);
 				$this.isOn = true;
-				
-				//Get target dimensions and position of the tooltip
-				var tipPosition = getTooltipPosition();
-				
-				//Zoom!
-				if (o.zoom) {
-					var ratio = ($this.cache.elmDim.h * $this.cache.elmDim.w) / ($this.cache.ttInnerDim.h * $this.cache.ttInnerDim.w);
-					// Named CSS attributes to scale by this area ratio:
-					var cssAttrs = {'fontSize': ''};	
-					var startCSS = {
-						opacity: 0,
-						left: $this.cache.elmOffset.left,
-						top: $this.cache.elmOffset.top,
-						width: $this.cache.elmDim.w,
-						height: $this.cache.elmDim.h
-					};
-					var endCSS = $.extend({}, tipPosition, {
-						width: $this.cache.ttInnerDim.w + 1, 
-						height: $this.cache.ttInnerDim.h + 1,
-						opacity: 1
-					});
-					for (i in cssAttrs) {
-						cssAttrs[i] = endCSS[i] = $ttTooltip.css(i);
-						startCSS[i] = parseInt(cssAttrs[i].split('px')[0], 10) * ratio;
-					};
-					//Set initial dimensions and position to be equal to the target element's
-					$ttTooltip.css(startCSS);
-					//Temporarily unbind events
-					$ttTooltip.unbind(o.hideEvent, hideTip);
-					$this.unbind(o.showEvent, delayShowTip).unbind(o.hideEvent, hideTip);
-					$ttTooltip.addClass(o.ttClass).animate(endCSS, o.fadeIn, function() {
-						//Rebind events.
-						$ttTooltip.bind(o.hideEvent, hideTip);
-						//Bind the showEvent. The hideEvent is bound on show.
-						$this.bind(o.showEvent, delayShowTip);
-					});
-				} else {
-					$ttTooltip.addClass(o.ttClass).css(tipPosition).fadeIn(o.fadeIn, function() {
-						if (o.onshow) {
-							o.onshow({
-								elm: $this,
-								tt: $ttTooltip,
-								opt: o
-							});
-						};
-					});
-				}
+				if ($this.ttTitle) $ttTooltip.html('<p>' + $this.ttTitle + '</p>');
+				$ttTooltip.addClass(o.ttClass).css(getTooltipPosition()).fadeIn(o.fadeIn, function() {
+					callbackFn('onshow');
+				});			
 			}
 			function updateCache() {
 				if ($this.cache.valid) return;
@@ -255,19 +217,15 @@
 				var align = {
 					vert: o.vAlign,
 					hor: o.align
-				};
-				
-				//Scroll position
-				var scroll = {
+				},
+				scroll = { //Scroll position
 					left: $(document.documentElement.body).scrollLeft(),
 					top: $(document.documentElement.body).scrollTop()
-				};
-				
-				//All the possible positions for the tooltip
-				var pos = {
+				},
+				pos = { //All the possible positions for the tooltip
 					top: {
-						above: $this.cache.elmOffset.top - $this.cache.ttDim.h - o.distanceY + o.nudgeY, 
-						below: $this.cache.elmOffset.top + $this.cache.elmDim.h + o.distanceY + o.nudgeY, 
+						above: $this.cache.elmOffset.top - $this.cache.ttDim.h - o.distanceY + o.nudgeY,
+						below: $this.cache.elmOffset.top + $this.cache.elmDim.h + o.distanceY + o.nudgeY,
 						center: $this.cache.elmOffset.top - $this.cache.ttDim.h/2 + $this.cache.elmDim.h/2,
 						flushTop: $this.cache.elmOffset.top,
 						flushBottom: $this.cache.elmOffset.top + $this.cache.elmDim.h + $this.cache.ttDim.h,
@@ -276,19 +234,18 @@
 						absCenter: scroll.top + $this.cache.vp.h/2 - $this.cache.ttDim.h/2
 					},
 					left: {
-						left: $this.cache.elmOffset.left - $this.cache.ttDim.w - o.distanceX + o.nudgeX, 
-						right: $this.cache.elmOffset.left + $this.cache.elmDim.w + o.distanceX + o.nudgeX, 
-						center: $this.cache.elmOffset.left - $this.cache.ttDim.w/2 + $this.cache.elmDim.w/2, 
-						flushLeft: $this.cache.elmOffset.left, 
+						left: $this.cache.elmOffset.left - $this.cache.ttDim.w - o.distanceX + o.nudgeX,
+						right: $this.cache.elmOffset.left + $this.cache.elmDim.w + o.distanceX + o.nudgeX,
+						center: $this.cache.elmOffset.left - $this.cache.ttDim.w/2 + $this.cache.elmDim.w/2,
+						flushLeft: $this.cache.elmOffset.left,
 						flushRight: $this.cache.elmOffset.left + $this.cache.elmDim.w - $this.cache.ttDim.w,
 						absLeft: scroll.left + o.windowMargin,
 						absRight: $this.cache.vp.w + scroll.left - $this.cache.ttDim.w - o.windowMargin,
 						absCenter: scroll.left + $this.cache.vp.w/2 - $this.cache.ttDim.w/2
 					}
-				};
-				//Booleans for whether there is space for the tooltip in a variety of positions.
-				//Compares tooltip offset to the absolute top/left position keeping tooltip on-screen
-				var space = {
+				},
+				space = { //Booleans for whether there is space for the tooltip in a variety of positions.
+					//Compares tooltip offset to the absolute top/left position keeping tooltip on-screen
 					above: pos.top[align.vert] < pos.top.absTop ? false : true,
 					below: pos.top[align.vert] > pos.top.absBottom ? false : true,
 					left: pos.left[align.hor] < pos.left.absLeft ? false : true,
@@ -297,13 +254,12 @@
 				//Move the tooltip around if there isn't space in the current position.
 				if ($this.cache.vp.h < $this.cache.ttDim.h) align.vert = 'absTop';
 				else if (!space.above && !space.below && align.vert == 'below') {
-					align.vert = 'absBottom';
-				} else if ((align.vert === 'above' || align.vert === 'center') && !space.above) {
+					align.vert = 'absBottom';			
+				} else if ((/^above|flushBottom|center$/i).test(align.vert) && !space.above) {
 					align.vert = 'absTop';
-				} else if ((align.vert === 'below' || align.vert === 'center') && !space.below) {
+				} else if ((/^below|flushTop|center$/i).test(align.vert) && !space.below) {
 					align.vert = 'absBottom';
 				}
-				
 				if (!space.left && !space.right) {
 					align.hor = 'absLeft';
 				} else if ((/^right|flushLeft|center$/i).test(align.hor) && !space.right) {
@@ -316,17 +272,29 @@
 					top: pos.top[align.vert]
 				};
 			}
+			function callbackFn (name) {
+				if (!o[name]) return;
+				o[name]({
+					elm: $this,
+					tt: $ttTooltip,
+					opt: o
+				});
+			}
+			//Public destroy method which unbinds all events and tidies up if we used the title attribute.
+			$this.ttDestroy = function() {
+				$ttTooltip.unbind(o.hideEvent, hideTip);
+				$this.unbind(o.showEvent, delayShowTip).unbind(o.hideEvent, hideTip);
+				if ($this.ttTitle) {
+					$ttTooltip.remove();
+					$this.attr('title', $this.ttTitle);
+				}
+			};
 		});
 	};
 	//
-	// private function for debugging
+	// storage object for managing nested tooltips
 	//
-	function cons(message) {
-		if (window.console && window.console.log) {
-			console.log(message);
-		}
-	};
-
+	$.fn.tt.tooltips = {};
 	//
 	// plugin defaults
 	//
