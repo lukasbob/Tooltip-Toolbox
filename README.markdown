@@ -48,8 +48,7 @@ Options defaults:
 			timeOut: 1000, //Time between hideEvent and the tooltip is hidden
 			delay: 250, //Time between showEvent and tooltip is displayed.
 			fadeIn: 100, //Time it takes for the tooltip to fade in.
-			fadeOut: 250, //Time it takes for the tooltip to fade out.
-			zoom: false //Use zoom effect to show tooltip
+			fadeOut: 250, //Time it takes for the tooltip to fade out.			
 		};
 
 ###Positioning options:

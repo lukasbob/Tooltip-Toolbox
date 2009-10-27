@@ -5,7 +5,7 @@
 		Introduction to the Tooltip Toolbox
 	</title>
 <script type="text/javascript" src="http://siteimprove.com/js/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="js/tooltip.min.js"></script>
+<script type="text/javascript" src="js/tooltip.js"></script>
 <style type="text/css" media="screen">
 	html {
 		font: 12px "lucida grande", tahome, sans-serif;
@@ -162,9 +162,7 @@
 			align: 'center',
 			css: {
 				width: '300px'
-			},
-			zoom: true,
-			fadeIn: 5000
+			}			
 		});
 		$('.flushRight').tt({
 			vAlign: 'above',
@@ -197,8 +195,7 @@
 		});
 		$('.image_center').tt({
 			vAlign: 'absCenter',
-			align: 'absCenter',
-			zoom: true,
+			align: 'absCenter',			
 			fadeIn: 100,
 			showEvent: 'click',
 			hideEvent: 'click',
@@ -218,14 +215,19 @@
 			align: 'right',
 			vAlign: 'flushTop',
 			ttClass: 'tt_dropdown',
+			hideEvent: 'click',
 			distanceX: 0,
 			nudgeX: -2,
 			timeOut: 0,
 			delay: 400
-		});
-		$('#tt_dropdown a').bind('click', function(e){
-			$('#tt_dropdown').after('<p>You clicked a menu item!</p>');
-			e.preventDefault();
+		});	
+		$('.ajax').tt({
+			showEvent: 'focus',
+			hideEvent: 'blur',
+			delay: 0,
+			timeOut: 500,
+			get: 'ajax_content.html',
+			getError: 'No such content yet!'
 		});
 	})
 </script>
@@ -353,8 +355,7 @@ $('.custom_class').tt({css: {
 <pre>
 $('.event_click').tt({
 	showEvent: 'click',
-	delay: 0,
-	zoom: true
+	delay: 0	
 });</pre>
 	</code>
 	<p class="test">Lorem ipsum dolor sit amet, mco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Here is a <strong class="event_click example" id="example7">tooltip</strong></p>
@@ -381,7 +382,6 @@ $('.event_focus').tt({
 </div>
 <div class="example">
 	<h2>Example 8: A pretty example</h2>
-	<p>Click to zoom the image.</p>
 	<h3>HTML</h3>
 	<code>
 		<pre>&lt;img id=&quot;example_8&quot; class=&quot;image_center&quot; src=&quot;http://farm3.static.flickr.com/2612/3785454856_0b4fc9b9f4_t.jpg&quot;&gt;
@@ -392,8 +392,7 @@ $('.event_focus').tt({
 <pre>
 $('.image_center').tt({
 	vAlign: 'absCenter',
-	align: 'absCenter',
-	zoom: true,
+	align: 'absCenter',	
 	fadeIn: 100,
 	showEvent: 'click',
 	hideEvent: 'click',
@@ -470,6 +469,25 @@ $('.nested').tt({
 		<li><a href="http://example.com/">Item 9</a></li>		
 	</ul>
 </div>
+
+<div class="example">
+	
+	<h2>Example 11: Loading remote content</h2>
+	<code>
+<pre>
+$('.ajax').tt({
+	showEvent: 'focus',
+	hideEvent: 'blur',
+	delay: 0,
+	timeOut: 500,
+	get: 'ajax_content.html'
+});</pre>
+	</code>
+	<p class="test"><input type="text" class="ajax example" value="Focus for a tooltip"></p>
+</div>
+
+
+
 
 <div class="intro">
 
@@ -550,10 +568,7 @@ $('.nested').tt({
 		<dd>Object with CSS rules, applied in addition to default styles.</dd>
 		<dd>As with jQuery CSS, use JavaScript CSS syntax, or quote properties.</dd>
 		<dd>Example: "css: {textAlign: 'left'}" or "css: {'text-align': 'left'}"</dd>
-		<dd>Default: Empty.</dd>
-		<dt>bool zoom</dt>
-		<dd>Use a zoom effect to animate the tooltip from the dimensions and point of origin of the target element.</dd>
-		<dd>Default: false</dd>
+		<dd>Default: Empty.</dd>		
 	</dl>
 </div>
 </body>
