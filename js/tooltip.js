@@ -83,8 +83,7 @@
 			//Storage object for cached positioning values
 			$this.cache = {valid: false};
 			$this.isOn = false;
-			$this.jqID = $.data($this),
-			ttId = '#' + o.ttIdPrefix + $this.attr('id');
+			ttId = '#' + o.ttIdPrefix + $this.attr('id');			
 			//Support for tooltips on the title attribute
 			//Either use the trigger element's title attr or the target element, if it exists.
 			if (!o.get && ($this.attr('id').length === 0 || !($(ttId)[0]))) {			
@@ -97,7 +96,7 @@
 			} else {
 				$ttTooltip = $(ttId).hide();
 				//Marker for the initial position of the tooltip, so we can replace it on hide.
-				var orgPos = $('<i id="org_' + $this.jqId + '" style="display:none!important"/>').insertAfter($ttTooltip).hide();
+				var orgPos = $('<i style="display:none!important"/>').insertAfter($ttTooltip).hide();
 			}
 			//Extend with options css properties
 			css = $.extend({},css,o.css);
@@ -138,7 +137,7 @@
 						//if the parent is in the tooltip registry...
 						if (this === $.fn.tt.tooltips[i][0]) {
 							//...register this as a nested tooltip of the parent
-							$.fn.tt.tooltips[i].tooltips[$this.jqID] = $this;
+							$.fn.tt.tooltips[i].tooltips[$.data($this)] = $this;
 						}
 					}
 				});
@@ -163,7 +162,9 @@
 						});
 					}
 				}
-				$ttTooltip.addClass(o.ttClass).css(getTooltipPosition()).fadeIn(o.fadeIn, function() {
+				$ttTooltip.addClass(o.ttClass);
+				if (o.forceReposition) updateCache();
+				$ttTooltip.css(getTooltipPosition()).fadeIn(o.fadeIn, function() {
 					callbackFn('onshow');
 				});
 			}
@@ -332,7 +333,8 @@
 		timeOut: 1000,
 		delay: 250,
 		fadeIn: 100,
-		fadeOut: 250
+		fadeOut: 250,
+		forceReposition: false
 	};
 	//
 	// end of closure
